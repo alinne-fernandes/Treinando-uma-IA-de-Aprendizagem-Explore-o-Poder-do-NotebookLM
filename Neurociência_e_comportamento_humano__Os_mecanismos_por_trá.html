@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="briefing">
+  <title>Segundo Cérebro de Vendas — Inteligência Neurocomportamental</title>
+
+  <!-- Google Fonts for Briefing Style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Allowed CDNs: Chart.js and Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page & Surfaces: Briefing warm stone-white paper */
+      --background: #faf9f5;
+      --surface-container-low: #ffffff;
+      --surface-container: #f1efe8;
+      --surface-container-high: #e6e2d6;
+
+      /* Ink */
+      --on-surface: #17181a;
+      --on-surface-variant: #56585c;
+
+      /* Rules */
+      --outline: #17181a;
+      --outline-variant: #dedad0;
+
+      /* Accents */
+      --primary: #17181a;
+      --on-primary: #faf9f5;
+      --primary-container: #f2b705;
+      --on-primary-container: #17181a;
+      --secondary: #1f4e5f;
+      --tertiary: #785008;
+      --error: #b42318;
+      --on-error: #ffffff;
+
+      /* Semantic and Data Series */
+      --positive: #2b6e52;
+      --warning: #d99000;
+      --focus: #1f4e5f;
+      --data-1: #1f4e5f;
+      --data-2: #d99000;
+      --data-3: #2b6e52;
+      --data-4: #b84a39;
+      --data-context: #c4bfb2;
+
+      /* Typography */
+      --font-headline: 'Source Serif 4', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-label: 'Geist Mono', monospace;
+
+      /* Scales for Dashboard */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Shape */
+      --rounded: 0.25rem;
+      --rounded-lg: 0.375rem;
+      --rounded-full: 0.25rem;
+      --badge-radius: 2px;
+
+      /* Effects */
+      --section-rule: 1.5px solid var(--outline);
+      --card-border: 1px solid var(--outline-variant);
+      --heading-tracking: -0.02em;
+      --label-tracking: 0.08em;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    header { position: static !important; }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1320px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Dossier Section Elements */
+    .dossier-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      border-bottom: var(--section-rule);
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+    .dossier-pill {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.6875rem;
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      padding: 0.1875rem 0.5rem;
+      border-radius: var(--badge-radius);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .dossier-meta {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Layout Components */
+    .masthead {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-xl) var(--space-xl) var(--space-lg) var(--space-xl);
+      border-top: 4px solid var(--primary);
+    }
+    .masthead-title {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 700;
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.15;
+      margin: 0 0 var(--space-sm) 0;
+      color: var(--on-surface);
+    }
+    .masthead-lead {
+      color: var(--secondary);
+      font-weight: 600;
+      font-size: var(--subhead-size);
+      margin: 0 0 var(--space-md) 0;
+      max-width: 80ch;
+    }
+    .masthead-desc {
+      color: var(--on-surface-variant);
+      margin: 0 0 var(--space-lg) 0;
+      max-width: 90ch;
+    }
+
+    /* Executive Neural Indicators Ribbon */
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+    }
+    .indicator-card {
+      background: var(--surface-container);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .indicator-label {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      letter-spacing: var(--label-tracking);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .indicator-value {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--on-surface);
+      line-height: 1.2;
+    }
+    .indicator-note {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+    }
+
+    /* Navigation Pills Bar */
+    .nav-bar {
+      display: flex;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      padding: var(--space-xs) 0;
+      border-bottom: 1px solid var(--outline-variant);
+      scrollbar-width: thin;
+    }
+    .nav-btn {
+      background: var(--surface-container);
+      color: var(--on-surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      padding: 0.6rem 1rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      white-space: nowrap;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+    }
+    .nav-btn:hover {
+      background: var(--surface-container-high);
+      border-color: var(--outline);
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Section Panels */
+    .module-section {
+      display: none;
+      animation: fadeIn var(--dur-short) var(--ease-out);
+    }
+    .module-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Containers */
+    .panel-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+    .panel-title {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 700;
+      margin: 0 0 var(--space-xs) 0;
+      color: var(--on-surface);
+    }
+    .panel-sub {
+      color: var(--secondary);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin: 0 0 var(--space-md) 0;
+    }
+
+    /* Two-column responsive layout */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-lg);
+    }
+    .grid-equal {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    /* Form Controls */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    .form-label {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: var(--on-surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .form-label-val {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      color: var(--secondary);
+    }
+    .input-range {
+      width: 100%;
+      height: 6px;
+      background: var(--surface-container-high);
+      border-radius: 3px;
+      outline: none;
+      accent-color: var(--secondary);
+      cursor: pointer;
+    }
+    .input-select, .input-text {
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      outline: none;
+    }
+    .input-select:focus, .input-text:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 2px rgba(31, 78, 95, 0.15);
+    }
+
+    /* Presets bar */
+    .preset-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    .btn-preset {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      background: var(--surface-container);
+      color: var(--on-surface);
+      border: 1px solid var(--outline-variant);
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .btn-preset:hover {
+      background: var(--surface-container-high);
+      border-color: var(--outline);
+    }
+    .btn-preset.active {
+      background: var(--secondary);
+      color: var(--on-primary);
+      border-color: var(--secondary);
+    }
+
+    /* Archetype Card Grid */
+    .archetype-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .archetype-card {
+      background: var(--surface-container-low);
+      border: 1.5px solid var(--outline-variant);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      cursor: pointer;
+      position: relative;
+      transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+    }
+    .archetype-card:hover {
+      border-color: var(--secondary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .archetype-card.selected {
+      border-color: var(--primary);
+      background: #fdfcf9;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .archetype-card.selected::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-container);
+      border-top-left-radius: var(--rounded-lg);
+      border-top-right-radius: var(--rounded-lg);
+    }
+    .archetype-badge {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: var(--label-tracking);
+      color: var(--secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .archetype-name {
+      font-family: var(--font-headline);
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0 0 var(--space-xs) 0;
+      color: var(--on-surface);
+    }
+    .archetype-circuit {
+      font-size: 0.75rem;
+      font-family: var(--font-label);
+      background: var(--surface-container);
+      padding: 0.15rem 0.4rem;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: var(--space-xs);
+      color: var(--on-surface-variant);
+    }
+    .archetype-desc {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    /* Diagnostic Result Box */
+    .dossier-callout {
+      background: var(--surface-container);
+      border-left: 4px solid var(--secondary);
+      border-radius: 0 var(--rounded) var(--rounded) 0;
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+    }
+    .dossier-callout.warning {
+      border-left-color: var(--primary-container);
+      background: #fffdf2;
+    }
+    .dossier-callout.positive {
+      border-left-color: var(--positive);
+      background: #f4faf6;
+    }
+    .callout-title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 0 0 var(--space-xs) 0;
+      color: var(--on-surface);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .callout-body {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    /* Value Formula & Result Metric Display */
+    .value-score-box {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+    .value-score-number {
+      font-family: var(--font-headline);
+      font-size: clamp(2.5rem, 4vw, 3.75rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--primary-container);
+      margin: var(--space-xs) 0;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    .value-score-status {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.15);
+      margin-top: var(--space-xs);
+    }
+
+    /* Comparison / Data Table */
+    .dossier-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      margin-top: var(--space-md);
+    }
+    .dossier-table th {
+      background: var(--surface-container-high);
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: var(--label-tracking);
+      color: var(--on-surface);
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1.5px solid var(--outline);
+    }
+    .dossier-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--outline-variant);
+      color: var(--on-surface);
+      vertical-align: top;
+    }
+    .dossier-table tr:hover td {
+      background: var(--surface-container);
+    }
+
+    /* Objection Playbook Accordion / Cards */
+    .objection-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      transition: border-color var(--dur-micro) var(--ease-out);
+    }
+    .objection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      cursor: pointer;
+      gap: var(--space-sm);
+    }
+    .objection-quote {
+      font-family: var(--font-headline);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin: 0;
+    }
+    .objection-badge {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+    .badge-amygdala { background: #fee2e2; color: #991b1b; }
+    .badge-striatum { background: #fef3c7; color: #92400e; }
+    .badge-pfc { background: #e0f2fe; color: #075985; }
+    .badge-status { background: #f3e8ff; color: #6b21a8; }
+
+    .objection-content {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px dashed var(--outline-variant);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+    .script-step {
+      background: var(--surface-container);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      border-left: 3px solid var(--secondary);
+    }
+    .script-step-num {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      color: var(--secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .script-step-title {
+      font-weight: 700;
+      font-size: 0.8125rem;
+      margin: 0.15rem 0 0.35rem 0;
+      color: var(--on-surface);
+    }
+    .script-step-text {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+      font-style: italic;
+    }
+
+    /* Meeting Conduction Checklist & Timer */
+    .meeting-phase-card {
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      background: var(--surface-container-low);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      border-left: 4px solid var(--data-context);
+      transition: border-left-color var(--dur-micro) var(--ease-out);
+    }
+    .meeting-phase-card.active-phase {
+      border-left-color: var(--primary-container);
+      background: #fefdf9;
+    }
+    .phase-timeline {
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--secondary);
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+      font-size: 0.875rem;
+      color: var(--on-surface);
+    }
+    .checklist-item input[type="checkbox"] {
+      margin-top: 0.25rem;
+      accent-color: var(--secondary);
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Canvas Containers */
+    .chart-container-box {
+      min-height: 280px;
+      position: relative;
+      width: 100%;
+      background: var(--surface-container-low);
+      padding: var(--space-md);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+    }
+
+    /* Buttons */
+    .btn-action {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: var(--on-primary);
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .btn-action:hover {
+      background: #2a2c30;
+    }
+    .btn-secondary {
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      border: 1px solid var(--outline-variant);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-container-high);
+      border-color: var(--outline);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+      .masthead {
+        padding: var(--space-md);
+      }
+      .panel-card {
+        padding: var(--space-md);
+      }
+      .indicators-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Accessibility reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-grid">
+
+    <!-- Dossier Header Bar -->
+    <header>
+      <div class="dossier-bar">
+        <span class="dossier-pill">
+          <i data-lucide="brain-circuit" style="width: 14px; height: 14px;"></i>
+          Dossiê Executivo
+        </span>
+        <span class="dossier-meta">Área de Inteligência Comercial B2B &bull; Neurociência Decisória &bull; Edição 2026.11</span>
+      </div>
+
+      <div class="masthead">
+        <h1 class="masthead-title">Segundo Cérebro de Vendas: Plataforma de Inteligência Neurocomportamental</h1>
+        <p class="masthead-lead">A tomada de decisão humana decodificada: do conflito reflexivo (Sistema 1 vs. Sistema 2) ao equilíbrio dopaminérgico e ancoragem somática em negociações complexas.</p>
+        <p class="masthead-desc">
+          Fundamentado nos marcos da psicologia cognitiva e da neurobiologia comportamental (Kahneman &amp; Tversky, Simon, Antônio Damásio, Wolfram Schultz, Vigotski e Carla Tieppo). Esta bancada de trabalho fornece suporte em tempo real para estruturação de propostas, leitura micro-afetiva e desmontagem cortical de objeções.
+        </p>
+
+        <!-- Dynamic Live Indicators Ribbon -->
+        <div class="indicators-grid" id="neural-summary-ribbon">
+          <div class="indicator-card">
+            <div class="indicator-label">
+              <span>Dominância Ativa</span>
+              <i data-lucide="cpu" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div class="indicator-value" id="ribbon-system-dom">Sistema 1 (Heurístico)</div>
+            <div class="indicator-note" id="ribbon-system-note">Alta carga cognitiva; decisões reativas e aversivas.</div>
+          </div>
+
+          <div class="indicator-card">
+            <div class="indicator-label">
+              <span>Índice VLD (Valor Líquido)</span>
+              <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div class="indicator-value" id="ribbon-vld-score">68 / 100</div>
+            <div class="indicator-note" id="ribbon-vld-status">Tração Favorável (Recompensa &gt; Atritos)</div>
+          </div>
+
+          <div class="indicator-card">
+            <div class="indicator-label">
+              <span>Sinal Dopaminérgico (RPE)</span>
+              <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div class="indicator-value" id="ribbon-rpe-state">+0.42 &Delta;Dopamina</div>
+            <div class="indicator-note" id="ribbon-rpe-note">Pico preditivo com risco zero de frustração.</div>
+          </div>
+
+          <div class="indicator-card">
+            <div class="indicator-label">
+              <span>Tensão Amigdaliana</span>
+              <i data-lucide="shield-alert" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div class="indicator-value" id="ribbon-amygdala-state">Moderada (45%)</div>
+            <div class="indicator-note" id="ribbon-amygdala-note">Exige validação prévia de risco e cases.</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-bar" aria-label="Módulos do Segundo Cérebro">
+      <button class="nav-btn active" id="tab-btn-1" onclick="switchModule(1)">
+        <i data-lucide="users" style="width: 16px; height: 16px;"></i>
+        1. Perfilamento Cognitivo (S1 vs S2)
+      </button>
+      <button class="nav-btn" id="tab-btn-2" onclick="switchModule(2)">
+        <i data-lucide="activity" style="width: 16px; height: 16px;"></i>
+        2. Matriz de Valor &amp; Dopamina (RPE)
+      </button>
+      <button class="nav-btn" id="tab-btn-3" onclick="switchModule(3)">
+        <i data-lucide="heart-pulse" style="width: 16px; height: 16px;"></i>
+        3. Marcadores Somáticos &amp; Confiança
+      </button>
+      <button class="nav-btn" id="tab-btn-4" onclick="switchModule(4)">
+        <i data-lucide="compass" style="width: 16px; height: 16px;"></i>
+        4. Central Metacognitiva &amp; Objeções
+      </button>
+    </nav>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 1: PERFILAMENTO COGNITIVO DO DECISOR (SISTEMA 1 VS. SISTEMA 2)     -->
+    <!-- ========================================================================= -->
+    <section class="module-section active" id="module-1">
+      <div class="dossier-bar">
+        <span class="dossier-pill">Pilar 01</span>
+        <span class="dossier-meta">Diagnóstico Neurocognitivo do Comprador &bull; Herbert Simon, Daniel Kahneman &amp; Amos Tversky</span>
+      </div>
+
+      <div class="panel-card">
+        <h2 class="panel-title">Mapeamento do Estado Mental e Arquétipos de Decisão</h2>
+        <p class="panel-sub">Identifique se o decisor opera predominantemente via heurísticas automáticas (Sistema 1) ou cálculo deliberado (Sistema 2).</p>
+
+        <!-- Archetypes Selection Grid -->
+        <div class="archetype-grid">
+          <div class="archetype-card selected" id="arch-card-1" onclick="selectArchetype(1)">
+            <div class="archetype-badge">Arquétipo Alfa</div>
+            <h3 class="archetype-name">O Pragmático Analítico</h3>
+            <span class="archetype-circuit">Córtex Pré-Frontal Dorsolateral (dlPFC)</span>
+            <p class="archetype-desc">Orientado a dados, cético contra promessas vagas, cálculo utilitarista estrito e aversão a desperdícios operacionais.</p>
+          </div>
+
+          <div class="archetype-card" id="arch-card-2" onclick="selectArchetype(2)">
+            <div class="archetype-badge">Arquétipo Beta</div>
+            <h3 class="archetype-name">O Guardião de Risco</h3>
+            <span class="archetype-circuit">Amígdala &amp; Ínsula Anterior (Alerta de Dor)</span>
+            <p class="archetype-desc">Dominado pelo medo de errar perante o conselho ou diretoria. Hipervigilante a falhas contratuais, apegado ao status quo.</p>
+          </div>
+
+          <div class="archetype-card" id="arch-card-3" onclick="selectArchetype(3)">
+            <div class="archetype-badge">Arquétipo Gama</div>
+            <h3 class="archetype-name">O Visionário Hedônico</h3>
+            <span class="archetype-circuit">Corpo Estriado &amp; VTA (Circuito de Recompensa)</span>
+            <p class="archetype-desc">Entusiasta de novidades, velocidade e status de pioneiro. Delega detalhes com rapidez e decide por intuição preliminar.</p>
+          </div>
+
+          <div class="archetype-card" id="arch-card-4" onclick="selectArchetype(4)">
+            <div class="archetype-badge">Arquétipo Delta</div>
+            <h3 class="archetype-name">O Diplomata Afetivo</h3>
+            <span class="archetype-circuit">Córtex Ventromedial (vmPFC) &amp; Empatia</span>
+            <p class="archetype-desc">Prioriza harmonia do time, química relacional com o consultor e impacto cultural nas pessoas da organização.</p>
+          </div>
+        </div>
+
+        <!-- Simulator: Real-Time Dynamic Brain State Simulator -->
+        <div class="grid-2col">
+          <div>
+            <h3 style="font-family: var(--font-headline); font-size: 1.125rem; margin-top: 0;">Simulador de Carga e Estado Neural na Reunião</h3>
+            <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin-bottom: var(--space-md);">
+              Como explicado pelo neurocientista Daniel Hostel: estresse, cansaço, restrição de tempo e dor fisiológica desligam o córtex pré-frontal e forçam o cérebro a decidir por atalhos emocionais primitivos.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-stress">
+                <span>Nível de Estresse / Fadiga Mental do Decisor</span>
+                <span class="form-label-val" id="val-stress">60%</span>
+              </label>
+              <input type="range" min="0" max="100" value="60" class="input-range" id="slider-stress" oninput="updateBrainState()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-time">
+                <span>Janela de Tempo para Decisão</span>
+                <span class="form-label-val" id="val-time">Escassa (&lt; 20 min)</span>
+              </label>
+              <input type="range" min="1" max="3" value="1" class="input-range" id="slider-time" oninput="updateBrainState()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-familiarity">
+                <span>Familiaridade com o Problema Técnico</span>
+                <span class="form-label-val" id="val-familiarity">Média (Conhece por alto)</span>
+              </label>
+              <input type="range" min="1" max="3" value="2" class="input-range" id="slider-familiarity" oninput="updateBrainState()">
+            </div>
+
+            <div class="preset-group">
+              <span style="font-size: 0.75rem; font-family: var(--font-label); align-self: center; text-transform: uppercase; color: var(--on-surface-variant);">Carregar Cenário:</span>
+              <button class="btn-preset" onclick="loadStatePreset('crise')">Cenário de Crise Urgente</button>
+              <button class="btn-preset" onclick="loadStatePreset('auditoria')">Comitê de Auditoria Formal</button>
+              <button class="btn-preset" onclick="loadStatePreset('inovacao')">Pitch de Inovação Estratégica</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Output Diagnosis -->
+          <div>
+            <div class="dossier-callout" id="archetype-diagnosis-box">
+              <h4 class="callout-title" id="diag-title">
+                <i data-lucide="crosshair" style="width: 18px; height: 18px;"></i>
+                Diagnóstico de Abordagem Personalizada
+              </h4>
+              <p class="callout-body" id="diag-body" style="margin-bottom: var(--space-sm);">
+                Seu decisor está em modo <strong>Pragmático Utilitarista</strong>. Evite discursos genéricos de autoajuda corporativa. Apresente modelos matemáticos de payback e premissas explícitas.
+              </p>
+              
+              <div style="background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--rounded); padding: var(--space-sm); margin-top: var(--space-sm);">
+                <div style="font-family: var(--font-label); font-size: 0.72rem; text-transform: uppercase; color: var(--secondary); font-weight: 700;">Enquadramento Cognitivo (Framing Recomendado):</div>
+                <div id="diag-framing" style="font-size: 0.8125rem; font-weight: 600; color: var(--on-surface); margin-top: 2px;">
+                  "Enquadramento de Oportunidade e Evitação de Custos Invisíveis" — Demonstrar como a inércia atual custa R$ 14.000/mês em retrabalho.
+                </div>
+              </div>
+
+              <div style="margin-top: var(--space-sm); display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 130px; background: var(--surface-container-low); padding: var(--space-xs) var(--space-sm); border-radius: var(--rounded); border: 1px solid var(--outline-variant);">
+                  <div style="font-family: var(--font-label); font-size: 0.68rem; text-transform: uppercase; color: var(--on-surface-variant);">Ativação S1 (Intuitivo)</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--warning);" id="diag-s1-pct">65%</div>
+                </div>
+                <div style="flex: 1; min-width: 130px; background: var(--surface-container-low); padding: var(--space-xs) var(--space-sm); border-radius: var(--rounded); border: 1px solid var(--outline-variant);">
+                  <div style="font-family: var(--font-label); font-size: 0.68rem; text-transform: uppercase; color: var(--on-surface-variant);">Ativação S2 (Analítico)</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--secondary);" id="diag-s2-pct">35%</div>
+                </div>
+              </div>
+
+              <div style="margin-top: var(--space-sm); font-size: 0.8125rem; color: var(--on-surface-variant);">
+                <strong>Alerta Prático:</strong> <span id="diag-warning">Com alta fadiga, o Sistema 2 se recusa a ler PDFs extensos. Limite a proposta inicial a 1 página resumo.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 2: MATRIZ DE VALOR E CIRCUITO DOPAMINÉRGICO                        -->
+    <!-- ========================================================================= -->
+    <section class="module-section" id="module-2">
+      <div class="dossier-bar">
+        <span class="dossier-pill">Pilar 02</span>
+        <span class="dossier-meta">Bioquímica da Ação &bull; Modelo de Wolfram Schultz (RPE) &amp; Análise Custo-Benefício Cerebral</span>
+      </div>
+
+      <div class="panel-card">
+        <h2 class="panel-title">Simulador de Valor Líquido e Sinal de Erro de Predição (RPE)</h2>
+        <p class="panel-sub">
+          O cérebro calcula o valor pela equação da recompensa dividida pelo atrito multidimensional. A dopamina não gera prazer no fim, mas antecipa expectativas e entra em colapso quando há frustração.
+        </p>
+
+        <div class="grid-2col">
+          <!-- Inputs & Math Parameters -->
+          <div>
+            <div class="preset-group">
+              <span style="font-size: 0.75rem; font-family: var(--font-label); align-self: center; text-transform: uppercase; color: var(--on-surface-variant);">Predefinição de Oferta:</span>
+              <button class="btn-preset active" id="btn-pre-saas" onclick="loadValuePreset('saas')">SaaS B2B Rápido</button>
+              <button class="btn-preset" id="btn-pre-enterprise" onclick="loadValuePreset('enterprise')">Enterprise Complexo</button>
+              <button class="btn-preset" id="btn-pre-consultoria" onclick="loadValuePreset('consultoria')">Consultoria Transformacional</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-reward">
+                <span>1. Recompensa Estratégica Percebida (Valor Almejado)</span>
+                <span class="form-label-val" id="val-reward">8 / 10</span>
+              </label>
+              <input type="range" min="1" max="10" value="8" class="input-range" id="slider-reward" oninput="calculateValueModel()">
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Impacto no faturamento, prestígio gerencial ou alívio de dor.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-delay">
+                <span>2. Distância Temporal até a Recompensa (Time-to-Value)</span>
+                <span class="form-label-val" id="val-delay">3 / 10 (Curto Prazo - 30 dias)</span>
+              </label>
+              <input type="range" min="1" max="10" value="3" class="input-range" id="slider-delay" oninput="calculateValueModel()">
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Desconto hiperbólico: recompensas distantes perdem atratividade química.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-effort">
+                <span>3. Esforço Cognitivo &amp; Operacional de Implantação</span>
+                <span class="form-label-val" id="val-effort">4 / 10 (Moderado)</span>
+              </label>
+              <input type="range" min="1" max="10" value="4" class="input-range" id="slider-effort" oninput="calculateValueModel()">
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Quanto trabalho a equipe do cliente terá para colocar a solução de pé?</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-cost">
+                <span>4. Custo Financeiro &amp; Fricção de Orçamento</span>
+                <span class="form-label-val" id="val-cost">5 / 10 (Médio)</span>
+              </label>
+              <input type="range" min="1" max="10" value="5" class="input-range" id="slider-cost" oninput="calculateValueModel()">
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Dor física no córtex insular ao desembolsar verba orçamentária.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="slider-risk">
+                <span>5. Risco / Perigo de Fracasso Percebido</span>
+                <span class="form-label-val" id="val-risk">3 / 10 (Baixo)</span>
+              </label>
+              <input type="range" min="1" max="10" value="3" class="input-range" id="slider-risk" oninput="calculateValueModel()">
+              <span style="font-size: 0.75rem; color: var(--on-surface-variant);">Medo de demissão ou dano reputacional em caso de erro.</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Results & Diagnostic Scorecard -->
+          <div>
+            <div class="value-score-box">
+              <div style="font-family: var(--font-label); font-size: 0.75rem; letter-spacing: var(--label-tracking); text-transform: uppercase;">Índice de Valor Dopaminérgico Líquido (VLD)</div>
+              <div class="value-score-number" id="vld-calculated-number">74</div>
+              <div class="value-score-status" id="vld-calculated-status">Alta Propensão de Fechamento</div>
+              <p style="font-size: 0.8125rem; color: #dedad0; margin: var(--space-xs) 0 0 0;" id="vld-calculated-quote">
+                "O benefício biológico excede com folga os custos e o estresse da mudança."
+              </p>
+            </div>
+
+            <div class="dossier-callout" style="margin-top: 0;">
+              <h4 class="callout-title">
+                <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                Gargalo Neurobiológico Identificado
+              </h4>
+              <p class="callout-body" id="vld-bottleneck-text">
+                O maior atrito atual é o <strong>Custo Financeiro Relativo</strong>. Para destravar a proposta, parcele os marcos contratuais ou vincule desembolsos ao atingimento de metas preliminares.
+              </p>
+            </div>
+
+            <!-- Theory Box -->
+            <div style="background: var(--surface-container); border: var(--card-border); border-radius: var(--rounded); padding: var(--space-sm) var(--space-md); margin-top: var(--space-md); font-size: 0.8125rem;">
+              <strong style="color: var(--secondary);">Fundamento de Carla Tieppo &amp; Daniel Hostel:</strong>
+              O cérebro é um economizador metabólico de glicose. Se o "Esforço de Entendimento" somado ao "Tempo" for alto, o corpo estriado (estriado ventral) bloqueia a ação motora mesmo que a recompensa seja atrativa.
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Rule -->
+        <hr style="border: none; border-top: var(--section-rule); margin: var(--space-xl) 0 var(--space-lg) 0;">
+
+        <!-- Schultz Dopamine RPE Simulator -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-md); flex-wrap: wrap; gap: var(--space-sm);">
+            <div>
+              <h3 style="font-family: var(--font-headline); font-size: 1.25rem; margin: 0 0 var(--space-xs) 0;">Curva Dinâmica de Dopamina: Erro de Predição de Recompensa (RPE)</h3>
+              <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin: 0;">
+                Estudo de Wolfram Schultz: O disparo dopaminérgico ocorre no <em>estímulo preditivo</em> (a promessa da reunião). Se a entrega real for inferior à expectativa criada, o cérebro afunda no <strong>Vale de Dopamina</strong> (frustração aguda e remorso do comprador).
+              </p>
+            </div>
+            
+            <div style="display: flex; gap: var(--space-xs); flex-wrap: wrap;">
+              <button class="btn-preset active" id="btn-rpe-positive" onclick="setRpeScenario('positive')">Alinhamento Perfeito + Surpresa (+RPE)</button>
+              <button class="btn-preset" id="btn-rpe-neutral" onclick="setRpeScenario('neutral')">Promessa Padrão Cumprida (&Delta;=0)</button>
+              <button class="btn-preset" id="btn-rpe-negative" onclick="setRpeScenario('negative')">Hiperpromessa com Frustração (-RPE Vale)</button>
+            </div>
+          </div>
+
+          <div class="chart-container-box">
+            <canvas id="dopamineChart" style="max-height: 280px;"></canvas>
+          </div>
+
+          <div class="dossier-callout" id="rpe-explanation-box" style="margin-top: var(--space-md);">
+            <div style="display: flex; gap: var(--space-sm); align-items: flex-start;">
+              <i data-lucide="info" style="width: 20px; height: 20px; color: var(--secondary); flex-shrink: 0; margin-top: 2px;"></i>
+              <div>
+                <strong id="rpe-scenario-title" style="color: var(--on-surface);">Cenário 1: Promessa Calibrada com Bônus Inesperado (&Delta; Dopamina &gt; 0)</strong>
+                <p id="rpe-scenario-desc" style="font-size: 0.875rem; color: var(--on-surface-variant); margin: 0.25rem 0 0 0;">
+                  O vendedor alinha a expectativa com honestidade no diagnóstico. Durante a entrega do piloto, entrega um relatório bônus antes do prazo. O cérebro do comprador registra um sinal positivo de reforço, consolidando lealdade e indicações espontâneas (e-WOM).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 3: MARCADORES SOMÁTICOS E CONFIANÇA AFETIVA                        -->
+    <!-- ========================================================================= -->
+    <section class="module-section" id="module-3">
+      <div class="dossier-bar">
+        <span class="dossier-pill">Pilar 03</span>
+        <span class="dossier-meta">Antônio Damásio ("O Erro de Descartes") &amp; Lev Vigotski (Afetividade e Cognição)</span>
+      </div>
+
+      <div class="panel-card">
+        <h2 class="panel-title">Repositório de Marcadores Somáticos e Sinais Corporais de Decisão</h2>
+        <p class="panel-sub">
+          Decisões não são tomadas sem a chancela do corpo. Os marcadores somáticos traduzem emoções prévias e sensações viscerais em alertas rápidos que aprovam ou vetam uma compra antes da razão formular a justificativa.
+        </p>
+
+        <div class="grid-2col">
+          <!-- Somatic Sensor Table -->
+          <div>
+            <h3 style="font-family: var(--font-headline); font-size: 1.125rem; margin-top: 0;">Mapeador de Leitura Corporal na Reunião Comercial</h3>
+            <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin-bottom: var(--space-sm);">
+              Observe as micro-reações fisiológicas para inferir se o sistema autônomo está em modo <em>Luta/Fuga (Simpático)</em> ou <em>Acolhimento/Engajamento (Vagal Ventral)</em>.
+            </p>
+
+            <table class="dossier-table" aria-label="Tabela de Leitura de Marcadores Somáticos">
+              <thead>
+                <tr>
+                  <th>Sinal Fisiológico</th>
+                  <th>Circuito Ativo</th>
+                  <th>Significado Biológico</th>
+                  <th>Ação Imediata</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Ombros tensos / Respiração curta</strong></td>
+                  <td><span class="badge-amygdala objection-badge">Simpático</span></td>
+                  <td>Medo de compromisso, ameaça ao orçamento.</td>
+                  <td>Pare a apresentação. Faça uma pausa e pergunte se o ritmo está adequado.</td>
+                </tr>
+                <tr>
+                  <td><strong>Sorriso simétrico / Olhar relaxado</strong></td>
+                  <td><span class="badge-status objection-badge">A1 mOFC</span></td>
+                  <td>Valência positiva, sensação de harmonia e beleza.</td>
+                  <td>Acelere para o fechamento ou proposta formal.</td>
+                </tr>
+                <tr>
+                  <td><strong>Braços cruzados + Corpo recuado</strong></td>
+                  <td><span class="badge-amygdala objection-badge">Ínsula / Defesa</span></td>
+                  <td>Marcador somático de aversão acionado por rejeição anterior.</td>
+                  <td>Troque argumentos por perguntas abertas de acolhimento empático.</td>
+                </tr>
+                <tr>
+                  <td><strong>Balançar de cabeça + Anotação ativa</strong></td>
+                  <td><span class="badge-pfc objection-badge">dlPFC / Estriado</span></td>
+                  <td>Sistema 2 engajado e calculando viabilidade.</td>
+                  <td>Apresente dados técnicos e cronograma detalhado de execução.</td>
+                </tr>
+                <tr>
+                  <td><strong>Suspiro profundo audível</strong></td>
+                  <td><span class="badge-striatum objection-badge">Descompressão</span></td>
+                  <td>Transição de sobrecarga cognitiva para alívio.</td>
+                  <td>Ofereça síntese dos 3 passos seguintes e valide o alívio.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Somatic Decontamination Workbench -->
+          <div>
+            <div style="background: var(--surface-container); border: var(--card-border); border-radius: var(--rounded-lg); padding: var(--space-md);">
+              <h3 style="font-family: var(--font-headline); font-size: 1.125rem; margin-top: 0;">Descontaminação de Marcadores Traumáticos</h3>
+              <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin-bottom: var(--space-md);">
+                O hipocampo do cliente retém memórias emocionais vívidas de compras anteriores desastrosas. Use o protocolo abaixo para reescrever essa marca somática:
+              </p>
+
+              <div class="form-group">
+                <label class="form-label" for="select-trauma">Selecione o Trauma Histórico do Comprador:</label>
+                <select class="input-select" id="select-trauma" onchange="renderTraumaProtocol()">
+                  <option value="trauma-1">"O último software demorou 12 meses e a equipe não usou."</option>
+                  <option value="trauma-2">"O fornecedor prometeu suporte ágil e sumiu após o contrato."</option>
+                  <option value="trauma-3">"A consultoria anterior só entregou slides bonitos sem resultado real."</option>
+                  <option value="trauma-4">"Tivemos que pagar custos ocultos exorbitantes não previstos."</option>
+                </select>
+              </div>
+
+              <div class="dossier-callout warning" id="trauma-result-box" style="margin-top: var(--space-sm);">
+                <div style="font-family: var(--font-label); font-size: 0.72rem; text-transform: uppercase; color: var(--tertiary); font-weight: 700;">Protocolo de Dessensibilização Somática:</div>
+                <div id="trauma-script-container" style="font-size: 0.875rem; margin-top: var(--space-xs);">
+                  <!-- Dynamic content populated via JavaScript -->
+                </div>
+              </div>
+
+              <div style="margin-top: var(--space-md); border-top: 1px dashed var(--outline-variant); padding-top: var(--space-sm); font-size: 0.8125rem; color: var(--on-surface-variant);">
+                <strong>Citação de Vigotski:</strong> "A linguagem é a ferramenta que organiza as emoções e conecta o plano fisiológico ao psicológico." Ao verbalizar o medo do cliente com exatidão, você desativa a amígdala.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 4: CENTRAL METACOGNITIVA E PLAYBOOK DE OBJEÇÕES                    -->
+    <!-- ========================================================================= -->
+    <section class="module-section" id="module-4">
+      <div class="dossier-bar">
+        <span class="dossier-pill">Pilar 04</span>
+        <span class="dossier-meta">Carla Tieppo (Discriminação Cortical) &amp; Neuroplasticidade Adaptativa</span>
+      </div>
+
+      <div class="panel-card">
+        <h2 class="panel-title">Playbook de Objeções: Discriminação Cortical &amp; Reenquadramento</h2>
+        <p class="panel-sub">
+          Como ensina Carla Tieppo: o sistema emocional é generalizante e cria atalhos toscos ("tudo é caro", "nenhum sistema funciona"). O papel da neurovenda é ativar o córtex discriminativo, enriquecendo o repertório cognitivo do decisor.
+        </p>
+
+        <!-- Filters for Objections -->
+        <div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md); flex-wrap: wrap; align-items: center;">
+          <span style="font-family: var(--font-label); font-size: 0.75rem; text-transform: uppercase; color: var(--on-surface-variant);">Filtrar por Origem Neural:</span>
+          <button class="btn-preset active" onclick="filterObjections('all')">Todas (8 Objeções)</button>
+          <button class="btn-preset" onclick="filterObjections('amygdala')">Amígdala (Medo / Aversão)</button>
+          <button class="btn-preset" onclick="filterObjections('striatum')">Estriado (Inércia / Hábito)</button>
+          <button class="btn-preset" onclick="filterObjections('pfc')">dlPFC (Métricas / ROI)</button>
+        </div>
+
+        <!-- Objections List -->
+        <div id="objections-list-container">
+          <!-- Objeção 1 -->
+          <div class="objection-card" data-category="pfc">
+            <div class="objection-header" onclick="toggleObjection(this)">
+              <div>
+                <p class="objection-quote">"O preço de vocês está 30% mais alto que a proposta do concorrente direto."</p>
+                <div style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 4px;">Circuito: Cálculo comparativo superficial do dlPFC sem discriminação de escopo.</div>
+              </div>
+              <span class="badge-pfc objection-badge">dlPFC / Discriminação</span>
+            </div>
+            <div class="objection-content">
+              <div class="script-step">
+                <div class="script-step-num">Passo 1 &bull; Desarme Emocional</div>
+                <div class="script-step-title">Validação Somática sem Conflito</div>
+                <p class="script-step-text">"Faz todo o sentido a sua preocupação com esses 30%. Se eu estivesse na sua cadeira, também exigiria clareza absoluta sobre essa diferença."</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 2 &bull; Discriminação Cortical (Tieppo)</div>
+                <div class="script-step-title">Desmontagem de Escopo e Fricções</div>
+                <p class="script-step-text">"Permita-me perguntar: na proposta deles, o suporte 24h e o onboarding assistido dos primeiros 90 dias estão inclusos, ou são cobrados como hora técnica extra?"</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 3 &bull; Reenquadramento de Custo Oculto</div>
+                <div class="script-step-title">Ativação da Aversão à Perda</div>
+                <p class="script-step-text">"Muitas vezes, esses 30% aparentes geram um consumo de 120 horas da sua equipe interna para compensar o que o fornecedor não entrega. Vamos isolar essa conta?"</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objeção 2 -->
+          <div class="objection-card" data-category="amygdala">
+            <div class="objection-header" onclick="toggleObjection(this)">
+              <div>
+                <p class="objection-quote">"Não podemos assumir nenhum risco este trimestre; vamos congelar novos projetos."</p>
+                <div style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 4px;">Circuito: Amígdala hiperativa em resposta a ameaça macroeconômica; viés do status quo.</div>
+              </div>
+              <span class="badge-amygdala objection-badge">Amígdala / Medo</span>
+            </div>
+            <div class="objection-content">
+              <div class="script-step">
+                <div class="script-step-num">Passo 1 &bull; Desarme Emocional</div>
+                <div class="script-step-title">Normalização de Autoconservação</div>
+                <p class="script-step-text">"Compreendo perfeitamente. Preservar o caixa e a segurança do negócio é a única atitude prudente para uma liderança em momentos de volatilidade."</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 2 &bull; Discriminação Cortical (Tieppo)</div>
+                <div class="script-step-title">Diferenciação entre Inércia e Segurança</div>
+                <p class="script-step-text">"Uma dúvida genuína: o congelamento deste projeto protege vocês dos R$ 40 mil mensais que estão vazando por ineficiência de processo hoje?"</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 3 &bull; Micro-compromisso Reversível</div>
+                <div class="script-step-title">Redução de Ameaça Dopaminérgica</div>
+                <p class="script-step-text">"Não precisamos assinar o projeto completo agora. Vamos fazer um piloto fechado de 30 dias em uma única célula sem compromisso de renovação?"</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objeção 3 -->
+          <div class="objection-card" data-category="striatum">
+            <div class="objection-header" onclick="toggleObjection(this)">
+              <div>
+                <p class="objection-quote">"Já temos uma planilha / processo caseiro que atende razoavelmente bem."</p>
+                <div style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 4px;">Circuito: Núcleos da base (estriado) protegendo o gasto energético de novos hábitos.</div>
+              </div>
+              <span class="badge-striatum objection-badge">Estriado / Hábito</span>
+            </div>
+            <div class="objection-content">
+              <div class="script-step">
+                <div class="script-step-num">Passo 1 &bull; Desarme Emocional</div>
+                <div class="script-step-title">Elogio à Engenhosidade Atual</div>
+                <p class="script-step-text">"Sensacional. Isso demonstra a capacidade da sua equipe de se adaptar e construir pontes operacionais sem depender de fornecedores caros."</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 2 &bull; Discriminação Cortical (Tieppo)</div>
+                <div class="script-step-title">Identificação do Teto de Escala</div>
+                <p class="script-step-text">"Até hoje esse modelo funcionou. Mas quando vocês crescerem mais 25% no próximo ano, quantas pessoas a mais você terá que alocar só para alimentar essa planilha manualmente?"</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 3 &bull; Transição Sem Fricção</div>
+                <div class="script-step-title">Manutenção de Familiaridade</div>
+                <p class="script-step-text">"Nossa ferramenta importa 100% dos dados dessa planilha em 4 minutos. O seu time não perde nenhuma rotina que já ama, só ganha 10 horas semanais livres."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objeção 4 -->
+          <div class="objection-card" data-category="amygdala">
+            <div class="objection-header" onclick="toggleObjection(this)">
+              <div>
+                <p class="objection-quote">"Preciso levar essa proposta para aprovação de um comitê interno de 6 diretores."</p>
+                <div style="font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 4px;">Circuito: Difusão de responsabilidade para atenuar medo de punição individual.</div>
+              </div>
+              <span class="badge-status objection-badge">Amígdala / Política</span>
+            </div>
+            <div class="objection-content">
+              <div class="script-step">
+                <div class="script-step-num">Passo 1 &bull; Desarme Emocional</div>
+                <div class="script-step-title">Blindagem do Campeão Interno</div>
+                <p class="script-step-text">"Perfeito. Em decisões dessa envergadura, o alinhamento multidisciplinar é o único caminho para assegurar adesão de ponta a ponta."</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 2 &bull; Discriminação Cortical (Tieppo)</div>
+                <div class="script-step-title">Mapeamento dos 6 Cérebros</div>
+                <p class="script-step-text">"Desses 6 diretores, qual deles costuma ser o mais cético em relação a orçamentos e qual prioriza ganho de produtividade imediata?"</p>
+              </div>
+              <div class="script-step">
+                <div class="script-step-num">Passo 3 &bull; Kit de Armamento Metacognitivo</div>
+                <div class="script-step-title">Coautoria na Defesa da Tese</div>
+                <p class="script-step-text">"Vou preparar para você um slide executivo de 1 página resumindo os 3 impactos diretos que cada um deles busca, para blindar você nessa reunião."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Rule -->
+        <hr style="border: none; border-top: var(--section-rule); margin: var(--space-xl) 0 var(--space-lg) 0;">
+
+        <!-- Guia Metacognitivo de Condução de Reunião -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); flex-wrap: wrap; gap: var(--space-sm);">
+            <div>
+              <h3 style="font-family: var(--font-headline); font-size: 1.25rem; margin: 0 0 var(--space-xs) 0;">Guia de Condução de Reunião em Tempo Real</h3>
+              <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin: 0;">
+                Checklist neurobiológico estruturado em 4 fases para manter a atenção deliberada e evitar sobrecarga cognitiva do decisor.
+              </p>
+            </div>
+            <button class="btn-action" onclick="resetMeetingChecklist()">
+              <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+              Reiniciar Condução
+            </button>
+          </div>
+
+          <div class="grid-equal">
+            <!-- Fase 1 -->
+            <div class="meeting-phase-card active-phase" id="phase-card-1">
+              <div class="phase-timeline">Fase 1 &bull; Min 0 a 5</div>
+              <h4 style="margin: 0 0 var(--space-xs) 0; font-family: var(--font-headline);">Desarme Amigdaliano &amp; Rapport Somático</h4>
+              <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin: 0;">Reduzir o cortisol e desativar o mecanismo de defesa de quem 'sabe que vai receber uma proposta de venda'.</p>
+
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-1-1" onchange="updateChecklistProgress()">
+                <label for="chk-1-1">Evitar pitch comercial nos primeiros minutos; focar na rotina e no contexto do decisor.</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-1-2" onchange="updateChecklistProgress()">
+                <label for="chk-1-2">Validar o tempo da reunião explicitamente ("Temos 30 minutos combinados; vamos cumprir à risca").</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-1-3" onchange="updateChecklistProgress()">
+                <label for="chk-1-3">Postura aberta, voz pausada e escuta ativa (ancoragem parassimpática).</label>
+              </div>
+            </div>
+
+            <!-- Fase 2 -->
+            <div class="meeting-phase-card" id="phase-card-2">
+              <div class="phase-timeline">Fase 2 &bull; Min 5 a 18</div>
+              <h4 style="margin: 0 0 var(--space-xs) 0; font-family: var(--font-headline);">Diagnóstico &amp; Discriminação Cortical</h4>
+              <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin: 0;">Forçar o Sistema 2 a calcular o custo real da inércia com perguntas de profundidade discriminativa.</p>
+
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-2-1" onchange="updateChecklistProgress()">
+                <label for="chk-2-1">Fazer o cliente quantificar a dor ("Quantas horas por semana isso rouba do seu time?").</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-2-2" onchange="updateChecklistProgress()">
+                <label for="chk-2-2">Descobrir experiências traumáticas passadas com outros fornecedores (identificar marcadores).</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-2-3" onchange="updateChecklistProgress()">
+                <label for="chk-2-3">Resumir a dor nas palavras exatas do cliente para obter o consentimento somático.</label>
+              </div>
+            </div>
+
+            <!-- Fase 3 -->
+            <div class="meeting-phase-card" id="phase-card-3">
+              <div class="phase-timeline">Fase 3 &bull; Min 18 a 32</div>
+              <h4 style="margin: 0 0 var(--space-xs) 0; font-family: var(--font-headline);">Apresentação Dopaminérgica Calibrada</h4>
+              <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin: 0;">Gerar antecipação de recompensa (estímulo preditivo) sem criar expectativas inviáveis que gerem vales futuros.</p>
+
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-3-1" onchange="updateChecklistProgress()">
+                <label for="chk-3-1">Apresentar no máximo 3 pilares de solução (regra de capacidade de memória de trabalho do PFC).</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-3-2" onchange="updateChecklistProgress()">
+                <label for="chk-3-2">Mostrar protótipo visual tangível ou case de sucesso do mesmo setor (reconhecimento por espelhamento).</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-3-3" onchange="updateChecklistProgress()">
+                <label for="chk-3-3">Demonstrar alívio de esforço ("Nós cuidamos da migração; seu time não tem retrabalho").</label>
+              </div>
+            </div>
+
+            <!-- Fase 4 -->
+            <div class="meeting-phase-card" id="phase-card-4">
+              <div class="phase-timeline">Fase 4 &bull; Min 32 a 45</div>
+              <h4 style="margin: 0 0 var(--space-xs) 0; font-family: var(--font-headline);">Fechamento em Micro-Passos &amp; Alinhamento</h4>
+              <p style="font-size: 0.8125rem; color: var(--on-surface-variant); margin: 0;">Prevenir paralisia de escolha propondo um próximo passo de atrito nulo com data definida.</p>
+
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-4-1" onchange="updateChecklistProgress()">
+                <label for="chk-4-1">Validar o sentimento antes da burocracia ("Como você se sente com essa arquitetura que vimos?").</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-4-2" onchange="updateChecklistProgress()">
+                <label for="chk-4-2">Propor compromisso mútuo indolor (ex: validação técnica com TI na 5ª feira às 14h).</label>
+              </div>
+              <div class="checklist-item">
+                <input type="checkbox" id="chk-4-3" onchange="updateChecklistProgress()">
+                <label for="chk-4-3">Enviar ata executiva de 5 linhas em até 2 horas pós-reunião (reforço sináptico imediato).</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Dossier Footer & Academic Citations -->
+    <footer style="margin-top: var(--space-xl); padding-top: var(--space-md); border-top: var(--section-rule); color: var(--on-surface-variant); font-size: 0.8125rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+        <div>
+          <strong style="color: var(--on-surface);">Segundo Cérebro de Vendas — Dossiê de Engenharia Comportamental</strong>
+          <p style="margin: var(--space-xs) 0 0 0; max-width: 65ch;">
+            Desenvolvido para executivos, diretores de receita e consultores estratégicos. Integrando modelos de decisão sob incerteza, neuroplasticidade e dinâmica neuroquímica.
+          </p>
+        </div>
+        <div style="font-family: var(--font-label); font-size: 0.72rem; text-transform: uppercase;">
+          <div>Fontes Teóricas: Kahneman (2012) &bull; Simon (1955) &bull; Damásio (2004)</div>
+          <div>Wolfram Schultz (1997) &bull; Carla Tieppo (2020) &bull; Vigotski (2004)</div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <api-shim></api-shim>
+
+  <script>
+    /* ========================================================================= */
+    /* APPLICATION STATE & PERSISTENCE MANAGEMENT                                */
+    /* ========================================================================= */
+    let appState = {
+      activeTab: 1,
+      selectedArchetype: 1,
+      stressLevel: 60,
+      timeWindow: 1,
+      familiarity: 2,
+      valueModel: {
+        reward: 8,
+        delay: 3,
+        effort: 4,
+        cost: 5,
+        risk: 3
+      },
+      rpeScenario: 'positive',
+      selectedTrauma: 'trauma-1',
+      checklist: {
+        'chk-1-1': false, 'chk-1-2': false, 'chk-1-3': false,
+        'chk-2-1': false, 'chk-2-2': false, 'chk-2-3': false,
+        'chk-3-1': false, 'chk-3-2': false, 'chk-3-3': false,
+        'chk-4-1': false, 'chk-4-2': false, 'chk-4-3': false
+      }
+    };
+
+    let dopamineChartInstance = null;
+
+    // Archetype metadata repository
+    const archetypeData = {
+      1: {
+        name: "O Pragmático Analítico",
+        circuit: "Córtex Pré-Frontal Dorsolateral (dlPFC)",
+        badge: "Arquétipo Alfa",
+        diag: "Seu decisor está em modo Pragmático Utilitarista. Evite discursos genéricos de autoajuda corporativa. Apresente modelos matemáticos de payback e premissas explícitas.",
+        framing: "Enquadramento de Oportunidade e Evitação de Custos Invisíveis — Demonstrar como a inércia atual custa R$ 14.000/mês em retrabalho operacional.",
+        warning: "Com alta fadiga, o Sistema 2 se recusa a ler PDFs extensos. Limite a proposta inicial a uma página resumo com comparativo matricial.",
+        s1Default: 40,
+        s2Default: 60
+      },
+      2: {
+        name: "O Guardião de Risco",
+        circuit: "Amígdala & Ínsula Anterior (Alerta de Dor)",
+        badge: "Arquétipo Beta",
+        diag: "Decisor dominado pelo medo de errar perante o conselho. Apresente garantias contratuais de reversibilidade e cases de clientes idênticos ao setor dele.",
+        framing: "Enquadramento de Mitigação de Risco e Segurança Institucional — 'Não implementar coloca o compliance da empresa em risco diante das novas normas'.",
+        warning: "Não pressione por decisão rápida. O calor do momento dispara fuga ou congelamento amigdaliano.",
+        s1Default: 80,
+        s2Default: 20
+      },
+      3: {
+        name: "O Visionário Hedônico",
+        circuit: "Corpo Estriado & VTA (Circuito de Recompensa)",
+        badge: "Arquétipo Gama",
+        diag: "Decisor busca protagonismo, velocidade e impacto visual. Mostre como esta solução posicionará a liderança dele na vanguarda do mercado.",
+        framing: "Enquadramento de Pioneirismo e Vantagem Competitiva — 'Ser o primeiro do segmento a operar com essa infraestrutura inteligente'.",
+        warning: "Não sobrecarregue com detalhes técnicos na primeira conversa. Mantenha a dopamina alta focando no troféu e no prestígio.",
+        s1Default: 75,
+        s2Default: 25
+      },
+      4: {
+        name: "O Diplomata Afetivo",
+        circuit: "Córtex Ventromedial (vmPFC) & Empatia",
+        badge: "Arquétipo Delta",
+        diag: "Decisor focado no bem-estar e na adesão das equipes internas. Demonstre a suavidade do onboarding e o suporte humanizado da sua equipe.",
+        framing: "Enquadramento Social e Harmonia Coletiva — 'Eliminar a sobrecarga mental dos seus analistas e restabelecer o equilíbrio do time'.",
+        warning: "Se o consultor demonstrar frieza ou arrogância técnica, a conexão afetiva é rompida e a venda é vetada pelo vmPFC.",
+        s1Default: 65,
+        s2Default: 35
+      }
+    };
+
+    // Trauma Protocol Repository
+    const traumaProtocols = {
+      'trauma-1': {
+        title: "Dessensibilização de Atraso e Não-Adoção de Software",
+        script: "<strong>Script de Condução:</strong> <em>'Compreendo totalmente o seu receio. Quando um software de 12 meses não é adotado, o desgaste para a liderança é imenso. Por isso nossa metodologia não exige implantação global imediata: subimos apenas o módulo essencial em 14 dias para 3 usuários-chave. Se eles não aprovarem, o projeto é cancelado sem multa.'</em>"
+      },
+      'trauma-2': {
+        title: "Reversão de Trauma de Abandono Pós-Venda",
+        script: "<strong>Script de Condução:</strong> <em>'É frustrante quando o comercial promete o mundo e o suporte some. No nosso contrato, o gerente de sucesso do cliente é copartícipe nos SLAs, com reuniões quinzenais documentadas e acesso direto via canal exclusivo dedicado.'</em>"
+      },
+      'trauma-3': {
+        title: "Superação de Consultorias de 'Apenas Slides'",
+        script: "<strong>Script de Condução:</strong> <em>'Você tem toda razão. Teoria sem execução gera cinismo na equipe. Por isso nosso entregável não são PDFs de diagnósticos, mas a reprogramação prática dos fluxos e o acompanhamento presencial das primeiras 20 transações reais.'</em>"
+      },
+      'trauma-4': {
+        title: "Neutralização de Medo de Custos Ocultos",
+        script: "<strong>Script de Condução:</strong> <em>'Surpresas de orçamento destroem a confiança de qualquer conselho. O nosso orçamento possui cláusula de teto fechado (guaranteed maximum price). Qualquer esforço excedente de customização é absorvido inteiramente por nós.'</em>"
+      }
+    };
+
+    /* ========================================================================= */
+    /* LIFECYCLE & STATE PERSISTENCE                                             */
+    /* ========================================================================= */
+    document.addEventListener("DOMContentLoaded", async function() {
+      // 1. Initialize Icons
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+
+      // 2. Load Persisted State if available
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && typeof saved === 'object') {
+            appState = Object.assign(appState, saved);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load persisted state:", err);
+      }
+
+      // 3. Sync UI with loaded state
+      syncUiFromState();
+
+      // 4. Initialize Charts & Dynamic Calculations
+      initDopamineChart();
+      calculateValueModel();
+      updateBrainState();
+      renderTraumaProtocol();
+      updateChecklistProgress();
+
+      // Signal ready to host
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+        window.notebookAppApi.notifyAppReady();
+      }
+    });
+
+    async function saveCurrentState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+          await window.notebookAppApi.setAppState(appState);
+        }
+      } catch (err) {
+        console.warn("Could not save state:", err);
+      }
+    }
+
+    function syncUiFromState() {
+      // Switch active tab
+      switchModule(appState.activeTab, false);
+
+      // Archetype
+      selectArchetype(appState.selectedArchetype, false);
+
+      // Sliders in Module 1
+      const sStress = document.getElementById('slider-stress');
+      if (sStress) sStress.value = appState.stressLevel;
+      const sTime = document.getElementById('slider-time');
+      if (sTime) sTime.value = appState.timeWindow;
+      const sFam = document.getElementById('slider-familiarity');
+      if (sFam) sFam.value = appState.familiarity;
+
+      // Sliders in Module 2
+      const sRew = document.getElementById('slider-reward');
+      if (sRew) sRew.value = appState.valueModel.reward;
+      const sDel = document.getElementById('slider-delay');
+      if (sDel) sDel.value = appState.valueModel.delay;
+      const sEff = document.getElementById('slider-effort');
+      if (sEff) sEff.value = appState.valueModel.effort;
+      const sCos = document.getElementById('slider-cost');
+      if (sCos) sCos.value = appState.valueModel.cost;
+      const sRis = document.getElementById('slider-risk');
+      if (sRis) sRis.value = appState.valueModel.risk;
+
+      // Select trauma
+      const sTrauma = document.getElementById('select-trauma');
+      if (sTrauma) sTrauma.value = appState.selectedTrauma;
+
+      // Checkboxes in Module 4
+      if (appState.checklist) {
+        for (const [key, val] of Object.entries(appState.checklist)) {
+          const chk = document.getElementById(key);
+          if (chk) chk.checked = !!val;
+        }
+      }
+    }
+
+    /* ========================================================================= */
+    /* MODULE SWITCHING NAVIGATION                                               */
+    /* ========================================================================= */
+    function switchModule(moduleNumber, save = true) {
+      appState.activeTab = moduleNumber;
+      if (save) saveCurrentState();
+
+      // Update Nav Buttons
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab-btn-${i}`);
+        if (btn) {
+          if (i === moduleNumber) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      }
+
+      // Update Sections
+      for (let i = 1; i <= 4; i++) {
+        const sec = document.getElementById(`module-${i}`);
+        if (sec) {
+          if (i === moduleNumber) {
+            sec.classList.add('active');
+          } else {
+            sec.classList.remove('active');
+          }
+        }
+      }
+
+      // If switching to module 2, trigger chart resize/update
+      if (moduleNumber === 2 && dopamineChartInstance) {
+        setTimeout(function() {
+          dopamineChartInstance.resize();
+        }, 50);
+      }
+    }
+
+    /* ========================================================================= */
+    /* MODULE 1: BRAIN STATE & ARCHETYPES LOGIC                                  */
+    /* ========================================================================= */
+    function selectArchetype(archetypeId, save = true) {
+      appState.selectedArchetype = archetypeId;
+      if (save) saveCurrentState();
+
+      // Highlight cards
+      for (let i = 1; i <= 4; i++) {
+        const card = document.getElementById(`arch-card-${i}`);
+        if (card) {
+          if (i === archetypeId) {
+            card.classList.add('selected');
+          } else {
+            card.classList.remove('selected');
+          }
+        }
+      }
+
+      updateBrainState();
+    }
+
+    function updateBrainState() {
+      const sStress = document.getElementById('slider-stress');
+      const sTime = document.getElementById('slider-time');
+      const sFam = document.getElementById('slider-familiarity');
+
+      const stress = sStress ? parseInt(sStress.value, 10) : 60;
+      const timeVal = sTime ? parseInt(sTime.value, 10) : 1;
+      const famVal = sFam ? parseInt(sFam.value, 10) : 2;
+
+      appState.stressLevel = stress;
+      appState.timeWindow = timeVal;
+      appState.familiarity = famVal;
+      saveCurrentState();
+
+      // Update labels
+      const vStress = document.getElementById('val-stress');
+      if (vStress) vStress.textContent = `${stress}%`;
+
+      const vTime = document.getElementById('val-time');
+      if (vTime) {
+        if (timeVal === 1) vTime.textContent = "Escassa (< 20 min)";
+        else if (timeVal === 2) vTime.textContent = "Média (30 - 45 min)";
+        else vTime.textContent = "Ampla (Comitê / Várias sessões)";
+      }
+
+      const vFam = document.getElementById('val-familiarity');
+      if (vFam) {
+        if (famVal === 1) vFam.textContent = "Baixa (Tema Novo/Inseguro)";
+        else if (famVal === 2) vFam.textContent = "Média (Conhece por alto)";
+        else vFam.textContent = "Alta (Especialista Técnico)";
+      }
+
+      // Compute System 1 vs System 2 percentages
+      // High stress + low time + low familiarity drastically pushes brain into System 1 (Amygdala/Heuristics)
+      const arch = archetypeData[appState.selectedArchetype] || archetypeData[1];
+      let baseS1 = arch.s1Default;
+      
+      // Dynamic modifiers
+      let s1Calc = baseS1 + (stress * 0.25) - (timeVal * 10) - (famVal * 5);
+      s1Calc = Math.max(15, Math.min(92, Math.round(s1Calc)));
+      let s2Calc = 100 - s1Calc;
+
+      const dS1 = document.getElementById('diag-s1-pct');
+      if (dS1) dS1.textContent = `${s1Calc}%`;
+      const dS2 = document.getElementById('diag-s2-pct');
+      if (dS2) dS2.textContent = `${s2Calc}%`;
+
+      // Update Callout Details
+      const dTitle = document.getElementById('diag-title');
+      if (dTitle) dTitle.innerHTML = `<i data-lucide="crosshair" style="width: 18px; height: 18px;"></i> Diagnóstico: ${arch.name}`;
+
+      const dBody = document.getElementById('diag-body');
+      if (dBody) dBody.innerHTML = `Dominância Atual: <strong>${s1Calc > 50 ? 'Sistema 1 Heurístico/Afetivo' : 'Sistema 2 Analítico/dlPFC'}</strong>.<br>${arch.diag}`;
+
+      const dFraming = document.getElementById('diag-framing');
+      if (dFraming) dFraming.textContent = arch.framing;
+
+      const dWarning = document.getElementById('diag-warning');
+      if (dWarning) {
+        if (stress > 70) {
+          dWarning.textContent = "Alerta Crítico: Sobrecarga de cortisol detectada. O comprador não reterá mais de 2 pontos lógicos. Priorize escuta e valide sentimentos.";
+        } else if (timeVal === 1) {
+          dWarning.textContent = "Tempo curto: Vá direto ao resumo do impacto financeiro. Deixe o detalhamento de features para anexo pós-reunião.";
+        } else {
+          dWarning.textContent = arch.warning;
+        }
+      }
+
+      // Update Ribbon Indicators
+      const rSysDom = document.getElementById('ribbon-system-dom');
+      const rSysNote = document.getElementById('ribbon-system-note');
+      if (rSysDom && rSysNote) {
+        if (s1Calc >= 60) {
+          rSysDom.textContent = "Sistema 1 Heurístico";
+          rSysNote.textContent = `Ativação de ${s1Calc}%. Decisões rápidas pautadas em segurança e empatia.`;
+        } else {
+          rSysDom.textContent = "Sistema 2 Deliberativo";
+          rSysNote.textContent = `Ativação de ${s2Calc}%. Demanda provas de ROI, planilhas e métricas claras.`;
+        }
+      }
+
+      const rAmyg = document.getElementById('ribbon-amygdala-state');
+      const rAmygNote = document.getElementById('ribbon-amygdala-note');
+      if (rAmyg && rAmygNote) {
+        const amygLevel = Math.round(stress * 0.7 + (4 - timeVal) * 8);
+        if (amygLevel > 65) {
+          rAmyg.textContent = `Alta (${amygLevel}%)`;
+          rAmygNote.textContent = "Foco em mitigação de risco e proteção do status quo.";
+        } else if (amygLevel > 40) {
+          rAmyg.textContent = `Moderada (${amygLevel}%)`;
+          rAmygNote.textContent = "Exige validação prévia de risco e cases sólidos.";
+        } else {
+          rAmyg.textContent = `Baixa / Segura (${amygLevel}%)`;
+          rAmygNote.textContent = "Segurança psicológica alta; aberta a inovações.";
+        }
+      }
+
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    }
+
+    function loadStatePreset(type) {
+      const sStress = document.getElementById('slider-stress');
+      const sTime = document.getElementById('slider-time');
+      const sFam = document.getElementById('slider-familiarity');
+
+      if (type === 'crise') {
+        if (sStress) sStress.value = 90;
+        if (sTime) sTime.value = 1;
+        if (sFam) sFam.value = 1;
+        selectArchetype(2);
+      } else if (type === 'auditoria') {
+        if (sStress) sStress.value = 40;
+        if (sTime) sTime.value = 3;
+        if (sFam) sFam.value = 3;
+        selectArchetype(1);
+      } else if (type === 'inovacao') {
+        if (sStress) sStress.value = 30;
+        if (sTime) sTime.value = 2;
+        if (sFam) sFam.value = 2;
+        selectArchetype(3);
+      }
+      updateBrainState();
+    }
+
+    /* ========================================================================= */
+    /* MODULE 2: VALUE MODEL & DOPAMINE RPE CHART                                */
+    /* ========================================================================= */
+    function calculateValueModel() {
+      const sRew = document.getElementById('slider-reward');
+      const sDel = document.getElementById('slider-delay');
+      const sEff = document.getElementById('slider-effort');
+      const sCos = document.getElementById('slider-cost');
+      const sRis = document.getElementById('slider-risk');
+
+      const rew = sRew ? parseInt(sRew.value, 10) : 8;
+      const del = sDel ? parseInt(sDel.value, 10) : 3;
+      const eff = sEff ? parseInt(sEff.value, 10) : 4;
+      const cos = sCos ? parseInt(sCos.value, 10) : 5;
+      const ris = sRis ? parseInt(sRis.value, 10) : 3;
+
+      appState.valueModel = { reward: rew, delay: del, effort: eff, cost: cos, risk: ris };
+      saveCurrentState();
+
+      // Update text values
+      const vRew = document.getElementById('val-reward');
+      if (vRew) vRew.textContent = `${rew} / 10`;
+
+      const vDel = document.getElementById('val-delay');
+      if (vDel) {
+        let label = del <= 3 ? "Curto Prazo" : (del <= 6 ? "Médio Prazo" : "Longo Prazo");
+        vDel.textContent = `${del} / 10 (${label})`;
+      }
+
+      const vEff = document.getElementById('val-effort');
+      if (vEff) {
+        let label = eff <= 3 ? "Leve" : (eff <= 6 ? "Moderado" : "Complexo");
+        vEff.textContent = `${eff} / 10 (${label})`;
+      }
+
+      const vCos = document.getElementById('val-cost');
+      if (vCos) {
+        let label = cos <= 3 ? "Acessível" : (cos <= 6 ? "Médio" : "Substancial");
+        vCos.textContent = `${cos} / 10 (${label})`;
+      }
+
+      const vRis = document.getElementById('val-risk');
+      if (vRis) {
+        let label = ris <= 3 ? "Baixo" : (ris <= 6 ? "Moderado" : "Elevado");
+        vRis.textContent = `${ris} / 10 (${label})`;
+      }
+
+      // Neurobiological Value Equation:
+      // Value = (Reward * 12) / (1 + (delay*0.25) + (effort*0.28) + (cost*0.24) + (risk*0.35))
+      const friction = 1 + (del * 0.25) + (eff * 0.28) + (cos * 0.24) + (ris * 0.35);
+      const rawScore = (rew * 14) / friction;
+      const score = Math.max(5, Math.min(99, Math.round(rawScore * 3.8)));
+
+      const vNum = document.getElementById('vld-calculated-number');
+      if (vNum) vNum.textContent = score;
+
+      const vStat = document.getElementById('vld-calculated-status');
+      const vQuote = document.getElementById('vld-calculated-quote');
+      const rScore = document.getElementById('ribbon-vld-score');
+      const rStatus = document.getElementById('ribbon-vld-status');
+
+      if (rScore) rScore.textContent = `${score} / 100`;
+
+      if (score >= 70) {
+        if (vStat) {
+          vStat.textContent = "Alta Propensão de Decisão Positiva";
+          vStat.style.background = "rgba(43, 110, 82, 0.4)";
+        }
+        if (vQuote) vQuote.textContent = '"A química de recompensa compensa amplamente o estresse e a inércia da mudança."';
+        if (rStatus) rStatus.textContent = "Tração Alta (Recompensa >> Atritos)";
+      } else if (score >= 45) {
+        if (vStat) {
+          vStat.textContent = "Zona de Hesitação & Negociação";
+          vStat.style.background = "rgba(217, 144, 0, 0.4)";
+        }
+        if (vQuote) vQuote.textContent = '"O decisor deseja o resultado, mas os freios cognitivos e operacionais empatam a decisão."';
+        if (rStatus) rStatus.textContent = "Hesitação (Atritos equivalem a ganhos)";
+      } else {
+        if (vStat) {
+          vStat.textContent = "Paralisia / Alta Resistência Cerebral";
+          vStat.style.background = "rgba(180, 35, 24, 0.4)";
+        }
+        if (vQuote) vQuote.textContent = '"O cérebro enxerga dor, risco e trabalho desproporcionais ao ganho prometido."';
+        if (rStatus) rStatus.textContent = "Risco de Paralisia (Veto Amigdaliano)";
+      }
+
+      // Bottleneck detection
+      const bText = document.getElementById('vld-bottleneck-text');
+      if (bText) {
+        const frictions = [
+          { name: "Tempo até o 1º Valor (Desconto Hiperbólico)", val: del * 0.25, rec: "Divida o projeto em marcos curtos. Entregue uma vitória em 10 dias úteis." },
+          { name: "Esforço Cognitivo & Operacional de Implantação", val: eff * 0.28, rec: "Assuma a carga de trabalho. Diga explicitamente: 'Nossa equipe fará a migração pesada'." },
+          { name: "Custo Financeiro Relativo", val: cos * 0.24, rec: "Reestruture os fluxos de desembolso para parcelas mensais ou atrele a bônus de performance." },
+          { name: "Risco Percebido & Medo de Erro", val: ris * 0.35, rec: "Ofereça garantia incondicional de 30 dias de piloto reversível para zerar a ativação da amígdala." }
+        ];
+        frictions.sort((a, b) => b.val - a.val);
+        const worst = frictions[0];
+        bText.innerHTML = `O maior atrito neurocomportamental detectado é <strong>${worst.name}</strong>.<br><strong>Intervenção Recomendada:</strong> ${worst.rec}`;
+      }
+    }
+
+    function loadValuePreset(type) {
+      const sRew = document.getElementById('slider-reward');
+      const sDel = document.getElementById('slider-delay');
+      const sEff = document.getElementById('slider-effort');
+      const sCos = document.getElementById('slider-cost');
+      const sRis = document.getElementById('slider-risk');
+
+      // Update active button state
+      const b1 = document.getElementById('btn-pre-saas');
+      const b2 = document.getElementById('btn-pre-enterprise');
+      const b3 = document.getElementById('btn-pre-consultoria');
+      if (b1) b1.classList.remove('active');
+      if (b2) b2.classList.remove('active');
+      if (b3) b3.classList.remove('active');
+
+      if (type === 'saas') {
+        if (b1) b1.classList.add('active');
+        if (sRew) sRew.value = 8;
+        if (sDel) sDel.value = 2;
+        if (sEff) sEff.value = 3;
+        if (sCos) sCos.value = 4;
+        if (sRis) sRis.value = 2;
+      } else if (type === 'enterprise') {
+        if (b2) b2.classList.add('active');
+        if (sRew) sRew.value = 9;
+        if (sDel) sDel.value = 8;
+        if (sEff) sEff.value = 8;
+        if (sCos) sCos.value = 8;
+        if (sRis) sRis.value = 7;
+      } else if (type === 'consultoria') {
+        if (b3) b3.classList.add('active');
+        if (sRew) sRew.value = 9;
+        if (sDel) sDel.value = 4;
+        if (sEff) sEff.value = 5;
+        if (sCos) sCos.value = 6;
+        if (sRis) sRis.value = 4;
+      }
+      calculateValueModel();
+    }
+
+    // Wolfram Schultz RPE Chart Management
+    function initDopamineChart() {
+      const ctx = document.getElementById('dopamineChart');
+      if (!ctx || typeof Chart === 'undefined') return;
+
+      const chartData = getRpeDatasets(appState.rpeScenario);
+
+      dopamineChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 600,
+            easing: 'easeOutQuart'
+          },
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  family: "'Plus Jakarta Sans', sans-serif",
+                  size: 12
+                },
+                color: '#17181a',
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: '#17181a',
+              titleFont: { family: "'Source Serif 4', serif", size: 13 },
+              bodyFont: { family: "'Geist Mono', monospace", size: 11 },
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#dedad0' },
+              ticks: {
+                color: '#56585c',
+                font: { family: "'Geist Mono', monospace", size: 11 }
+              }
+            },
+            y: {
+              min: -1.0,
+              max: 2.2,
+              grid: { color: '#dedad0' },
+              ticks: {
+                stepSize: 0.5,
+                color: '#56585c',
+                font: { family: "'Geist Mono', monospace", size: 11 },
+                callback: function(value) {
+                  if (value === 0) return '0.0 (Linha Basal)';
+                  if (value > 0) return `+${value} (Pico)`;
+                  return `${value} (Vale/Frustração)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function getRpeDatasets(scenario) {
+      const labels = [
+        '1. Diagnóstico Inicial',
+        '2. Estímulo Preditivo (Pitch)',
+        '3. Demonstração / Negociação',
+        '4. Assinatura do Contrato',
+        '5. Entrega / Go-Live Real'
+      ];
+
+      if (scenario === 'positive') {
+        return {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Disparo Dopaminérgico Real (VTA / Estriado)',
+              data: [0.0, 1.4, 0.9, 0.7, 1.8],
+              borderColor: '#2b6e52',
+              backgroundColor: 'rgba(43, 110, 82, 0.1)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointBackgroundColor: '#2b6e52',
+              pointRadius: 5
+            },
+            {
+              label: 'Expectativa Prevista pelo Comprador',
+              data: [0.0, 1.2, 0.8, 0.6, 0.6],
+              borderColor: '#c4bfb2',
+              borderDash: [5, 5],
+              tension: 0.2,
+              borderWidth: 1.5,
+              pointRadius: 0
+            }
+          ]
+        };
+      } else if (scenario === 'neutral') {
+        return {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Disparo Dopaminérgico Real',
+              data: [0.0, 0.9, 0.5, 0.4, 0.4],
+              borderColor: '#1f4e5f',
+              backgroundColor: 'rgba(31, 78, 95, 0.08)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 2.5,
+              pointBackgroundColor: '#1f4e5f',
+              pointRadius: 4
+            },
+            {
+              label: 'Expectativa Prevista pelo Comprador',
+              data: [0.0, 0.9, 0.5, 0.4, 0.4],
+              borderColor: '#c4bfb2',
+              borderDash: [5, 5],
+              tension: 0.2,
+              borderWidth: 1.5,
+              pointRadius: 0
+            }
+          ]
+        };
+      } else {
+        // Negative scenario
+        return {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Disparo Dopaminérgico Real (O Vale Fatal)',
+              data: [0.0, 1.9, 1.4, 1.0, -0.8],
+              borderColor: '#b42318',
+              backgroundColor: 'rgba(180, 35, 24, 0.12)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointBackgroundColor: '#b42318',
+              pointRadius: 5
+            },
+            {
+              label: 'Hiperpromessa do Vendedor',
+              data: [0.0, 1.9, 1.6, 1.4, 1.4],
+              borderColor: '#d99000',
+              borderDash: [5, 5],
+              tension: 0.2,
+              borderWidth: 1.5,
+              pointRadius: 0
+            }
+          ]
+        };
+      }
+    }
+
+    function setRpeScenario(scenario) {
+      appState.rpeScenario = scenario;
+      saveCurrentState();
+
+      // Update Buttons
+      const bPos = document.getElementById('btn-rpe-positive');
+      const bNeu = document.getElementById('btn-rpe-neutral');
+      const bNeg = document.getElementById('btn-rpe-negative');
+      if (bPos) bPos.classList.remove('active');
+      if (bNeu) bNeu.classList.remove('active');
+      if (bNeg) bNeg.classList.remove('active');
+
+      if (scenario === 'positive' && bPos) bPos.classList.add('active');
+      if (scenario === 'neutral' && bNeu) bNeu.classList.add('active');
+      if (scenario === 'negative' && bNeg) bNeg.classList.add('active');
+
+      // Update Chart
+      if (dopamineChartInstance) {
+        const newData = getRpeDatasets(scenario);
+        dopamineChartInstance.data.labels = newData.labels;
+        dopamineChartInstance.data.datasets = newData.datasets;
+        dopamineChartInstance.update();
+      }
+
+      // Update Explanation Box
+      const sTitle = document.getElementById('rpe-scenario-title');
+      const sDesc = document.getElementById('rpe-scenario-desc');
+      const rRibbonRpe = document.getElementById('ribbon-rpe-state');
+      const rRibbonNote = document.getElementById('ribbon-rpe-note');
+
+      if (scenario === 'positive') {
+        if (sTitle) sTitle.textContent = "Cenário 1: Promessa Calibrada com Surpresa Positiva (+RPE)";
+        if (sDesc) sDesc.textContent = "O vendedor controla a ambição da promessa durante a negociação. Na entrega do piloto, entrega 2 relatórios adicionais sem cobrar nada e 5 dias antes do prazo. O cérebro do comprador experimenta um pico dopaminérgico espontâneo pós-aquisição, gerando retenção blindada e marketing boca a boca entusiasmado.";
+        if (rRibbonRpe) rRibbonRpe.textContent = "+0.42 ΔDopamina";
+        if (rRibbonNote) rRibbonNote.textContent = "Pico preditivo com risco zero de frustração.";
+      } else if (scenario === 'neutral') {
+        if (sTitle) sTitle.textContent = "Cenário 2: Expectativa Padrão Estritamente Atendida (Δ Dopamina = 0)";
+        if (sDesc) sDesc.textContent = "O vendedor entrega exatamente o que prometeu no contrato, nem uma vírgula a mais ou a menos. Conforme demonstrado por Schultz, o disparo dopaminérgico é nulo após o estímulo preditivo. O cliente está satisfeito, mas vulnerável à abordagem de concorrentes que ofereçam novidades.";
+        if (rRibbonRpe) rRibbonRpe.textContent = "0.00 ΔDopamina";
+        if (rRibbonNote) rRibbonNote.textContent = "Satisfação burocrática; sem fidelização afetiva.";
+      } else {
+        if (sTitle) sTitle.textContent = "Cenário 3: Hiperpromessa Comercial com Quebra de Expectativa (-RPE: O Vale)";
+        if (sDesc) sDesc.textContent = "O vendedor 'forçou a barra' para fechar no fim do mês, prometendo facilidades inexistentes. Ao se deparar com a realidade, os neurônios dopaminérgicos do comprador cessam os disparos (queda abaixo da linha basal). Essa depressão química gera aversão visceral, queixas duras e rescisão contratual imediata.";
+        if (rRibbonRpe) rRibbonRpe.textContent = "-0.78 ΔDopamina (Vale)";
+        if (rRibbonNote) rRibbonNote.textContent = "Risco agudo de remorso do comprador e litígio.";
+      }
+    }
+
+    /* ========================================================================= */
+    /* MODULE 3: SOMATIC MARKERS & TRAUMA PROTOCOL                               */
+    /* ========================================================================= */
+    function renderTraumaProtocol() {
+      const select = document.getElementById('select-trauma');
+      const selected = select ? select.value : 'trauma-1';
+      appState.selectedTrauma = selected;
+      saveCurrentState();
+
+      const protocol = traumaProtocols[selected] || traumaProtocols['trauma-1'];
+      const container = document.getElementById('trauma-script-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="font-weight: 700; color: var(--on-surface); margin-bottom: var(--space-xs);">${protocol.title}</div>
+          <div style="color: var(--on-surface);">${protocol.script}</div>
+        `;
+      }
+    }
+
+    /* ========================================================================= */
+    /* MODULE 4: OBJECTIONS PLAYBOOK & MEETING CHECKLIST                         */
+    /* ========================================================================= */
+    function toggleObjection(headerElement) {
+      const card = headerElement.closest('.objection-card');
+      if (!card) return;
+      const content = card.querySelector('.objection-content');
+      if (!content) return;
+
+      if (content.style.display === 'none') {
+        content.style.display = 'grid';
+      } else {
+        content.style.display = 'none';
+      }
+    }
+
+    function filterObjections(category) {
+      // Update buttons
+      const buttons = document.querySelectorAll('#module-4 .btn-preset');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(buttons).find(b => b.textContent.toLowerCase().includes(category) || (category === 'all' && b.textContent.includes('Todas')));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const cards = document.querySelectorAll('#objections-list-container .objection-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function updateChecklistProgress() {
+      const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+      let total = checkboxes.length;
+      let checkedCount = 0;
+
+      checkboxes.forEach(chk => {
+        appState.checklist[chk.id] = chk.checked;
+        if (chk.checked) checkedCount++;
+      });
+      saveCurrentState();
+
+      // Manage Phase highlight
+      const p1 = document.getElementById('phase-card-1');
+      const p2 = document.getElementById('phase-card-2');
+      const p3 = document.getElementById('phase-card-3');
+      const p4 = document.getElementById('phase-card-4');
+
+      [p1, p2, p3, p4].forEach(p => { if (p) p.classList.remove('active-phase'); });
+
+      if (checkedCount <= 3 && p1) p1.classList.add('active-phase');
+      else if (checkedCount <= 6 && p2) p2.classList.add('active-phase');
+      else if (checkedCount <= 9 && p3) p3.classList.add('active-phase');
+      else if (p4) p4.classList.add('active-phase');
+    }
+
+    function resetMeetingChecklist() {
+      const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+      checkboxes.forEach(chk => {
+        chk.checked = false;
+        appState.checklist[chk.id] = false;
+      });
+      saveCurrentState();
+      updateChecklistProgress();
+    }
+  </script>
+</body>
+</html>
