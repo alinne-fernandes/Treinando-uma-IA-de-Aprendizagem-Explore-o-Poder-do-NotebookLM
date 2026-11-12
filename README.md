@@ -22,3 +22,7 @@ Explorar como emoções, cognição e processos cerebrais influenciam o comporta
 **Fontes**
 
 As fontes apresentadas discutem a **complexidade da tomada de decisões** e do comportamento humano através da interface entre a **neurociência**, a **cognição** e os **aspectos histórico-culturais**. Explica-se que as escolhas cotidianas ou complexas não dependem de uma única área isolada do cérebro, mas emergem de uma **sinfonia neural dinamicamente influenciada** por fatores biológicos, emocionais e ambientais. Além disso, destaca-se como a **educação** e o **autoconhecimento emocional** podem aprimorar a regulação de impulsos e a **plasticidade cerebral**, permitindo o desenvolvimento de respostas mais adaptativas. Por fim, resgata-se a perspectiva histórico-cultural para demonstrar que as **emoções e os pensamentos** formam uma unidade indissociável, onde a **subjetividade humana** é moldada tanto por estruturas orgânicas quanto pelas interações sociais.
+
+## Notebook de Estudos
+
+[📚 Acessar o Notebook](https://notebook.google.com/notebook/3d74cd4f-e0fe-478b-a9b1-5d4e96676872)
